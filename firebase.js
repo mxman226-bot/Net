@@ -1,14 +1,16 @@
-// =====================================================
-// firebase.js  —  Firebase initialization (auth + db + storage)
-// =====================================================
+// firebase.js
 
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  getAuth,
+  setPersistence,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAYoOvMv6h2kBddMYqWQu9CpBamt1SsCQM",
   authDomain: "mido-34f40.firebaseapp.com",
@@ -19,24 +21,22 @@ const firebaseConfig = {
   measurementId: "G-SVF2Q7ZKJ6"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Avoid duplicate initialization
+// تجنب التهيئة المكررة
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-export const auth    = getAuth(app);
-export const db      = getFirestore(app);
+// Analytics
+const analytics =
+  typeof window !== "undefined" ? getAnalytics(app) : null;
+
+// Services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Persist auth across reloads/sessions (IndexedDB → localStorage fallback)
+// حفظ تسجيل الدخول
 setPersistence(auth, indexedDBLocalPersistence)
   .catch(() => setPersistence(auth, browserLocalPersistence))
-  .catch((e) => console.log("[v0] persistence error", e));
+  .catch((e) => console.log("Persistence error:", e));
 
+export { analytics };
 export default app;
